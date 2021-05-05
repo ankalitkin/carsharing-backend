@@ -12,13 +12,14 @@ import ru.vsu.cs.carsharing.exception.WebException;
 public class RegistrationService {
     private final UserDao userDao;
 
+    //To be deleted
     public User register(String login, String password, String name) {
         if (userDao.existsByLogin(login)) {
             throw new WebException("Login is already used", HttpStatus.BAD_REQUEST);
         }
         String salt = HashUtills.generateSalt(10);
         password = HashUtills.hashPassword(password, salt);
-        User user = new User(login, password, salt, name);
+        User user = new User(login, password, salt, name, "");
         userDao.save(user);
         return user;
     }

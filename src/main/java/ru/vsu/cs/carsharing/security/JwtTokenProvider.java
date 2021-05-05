@@ -1,6 +1,7 @@
 package ru.vsu.cs.carsharing.security;
 
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -17,12 +18,14 @@ import ru.vsu.cs.carsharing.exception.WebException;
 
 import javax.crypto.SecretKey;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
 public class JwtTokenProvider {
     public static final String BEARER = "Bearer ";
+    public static final long TTL_MILLIS = 7 * 24 * 3600 * 1000;
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private final SecretKey secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(Keychain.JWT_KEY));
     private final Keychain keychain;
@@ -30,14 +33,15 @@ public class JwtTokenProvider {
     public String createToken(String subject) {
         return Jwts.builder()
                 .setSubject(subject)
+                .setExpiration(new Date(System.currentTimeMillis() + TTL_MILLIS))
                 .signWith(secretKey)
                 .compact();
     }
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
-            return true;
+            Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
+            return claims.getExpiration().before(new Date());
         } catch (JwtException e) {
             return false;
         }

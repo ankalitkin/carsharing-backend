@@ -4,14 +4,20 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import ru.vsu.cs.carsharing.converter.CustomerMapper;
 import ru.vsu.cs.carsharing.converter.UserMapper;
 import ru.vsu.cs.carsharing.dao.UserDao;
+import ru.vsu.cs.carsharing.dto.AuthorizedCustomerDto;
 import ru.vsu.cs.carsharing.dto.AuthorizedUserDto;
+import ru.vsu.cs.carsharing.dto.CustomerDto;
 import ru.vsu.cs.carsharing.dto.UserDto;
+import ru.vsu.cs.carsharing.entity.Customer;
 import ru.vsu.cs.carsharing.entity.User;
 import ru.vsu.cs.carsharing.exception.WebException;
 import ru.vsu.cs.carsharing.security.JwtTokenProvider;
 import ru.vsu.cs.carsharing.security.Keychain;
+import ru.vsu.cs.carsharing.service.external.SMSAuthService;
+import ru.vsu.cs.carsharing.service.external.SMSUtil;
 
 import java.util.List;
 import java.util.Objects;
@@ -21,18 +27,19 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class AuthorizationService {
     private final JwtTokenProvider jwtTokenProvider;
+    private final SMSAuthService smsAuthService;
     private final Keychain keychain;
     private final UserDao userDao;
+    private final CustomerService customerService;
 
     public AuthorizedUserDto authorizeUser(String login, String password) {
         try {
             User authorizedUser = authUser(login, password);
             UserDto dto = UserMapper.INSTANCE.toDto(authorizedUser);
             int userId = authorizedUser.getId();
-            String tokenLogin = String.format("%d %s", userId, login);
-            String token = jwtTokenProvider.createToken(tokenLogin);
+            String token = jwtTokenProvider.createToken(String.valueOf(userId));
             List<String> authorities = keychain.getAuthoritiesStrings(login, userId);
-            return new AuthorizedUserDto(dto, JwtTokenProvider.BEARER + token, authorities, null);
+            return new AuthorizedUserDto(dto, JwtTokenProvider.BEARER + token, authorities);
         } catch (Exception e) {
             log.error("Error during authorization", e);
             throw e;
@@ -50,4 +57,24 @@ public class AuthorizationService {
         return user;
     }
 
+    public void sendCustomerSMS(String phoneNumber) {
+        phoneNumber = SMSUtil.processPhoneNumber(phoneNumber);
+        smsAuthService.generateAndSendSMS(phoneNumber);
+    }
+
+    public AuthorizedCustomerDto authorizeCustomer(String phoneNumber, String code) {
+        try {
+            phoneNumber = SMSUtil.processPhoneNumber(phoneNumber);
+            if (!smsAuthService.validateCode(phoneNumber, code)) {
+                throw new WebException("Wrong code", HttpStatus.FORBIDDEN);
+            }
+            Customer customer = customerService.getOrCreateCustomerByPhoneNumber(phoneNumber);
+            CustomerDto dto = CustomerMapper.INSTANCE.toDto(customer);
+            String token = jwtTokenProvider.createToken(String.valueOf(customer.getId()));
+            return new AuthorizedCustomerDto(dto, JwtTokenProvider.BEARER + token);
+        } catch (Exception e) {
+            log.error("Error during authorization", e);
+            throw e;
+        }
+    }
 }

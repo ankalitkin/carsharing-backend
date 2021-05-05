@@ -4,13 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 @AllArgsConstructor
-public class AuthorizedUserDto {
+public class AuthorizedCustomerDto {
     @JsonProperty("user")
-    private UserDto userDto;
+    private CustomerDto customerDto;
     private String tokenData;
-    private List<String> authorities;
 }

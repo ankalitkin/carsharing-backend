@@ -12,7 +12,7 @@ CREATE TABLE employee
 CREATE TABLE customer
 (
     id                SERIAL PRIMARY KEY,
-    name              varchar(255) NOT NULL,
+    name              varchar(255),
     phone_number      varchar(255) NOT NULL,
     selfie_filename   varchar(255),
     profile_confirmed bool         NOT NULL DEFAULT false,

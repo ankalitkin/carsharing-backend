@@ -47,11 +47,12 @@ public class User {
         this.name = name;
     }
 
-    public User(String login, String password, String salt, String name) {
+    public User(String login, String password, String salt, String name, String roles) {
         this.login = login;
         this.password = password;
         this.name = name;
         this.salt = salt;
+        this.roles = roles;
     }
 
 }
