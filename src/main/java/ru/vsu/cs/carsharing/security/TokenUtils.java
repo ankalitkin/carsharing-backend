@@ -17,7 +17,8 @@ class TokenUtils {
 
     static String getLogin(String subject) {
         try {
-            return subject.split(" ")[1];
+            String[] split = subject.split(" ");
+            return split.length > 1 ? split[1] : null;
         } catch (Exception ex) {
             throw new WebException("Wrong token data", ex, HttpStatus.INTERNAL_SERVER_ERROR);
         }

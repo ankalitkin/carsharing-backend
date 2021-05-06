@@ -5,56 +5,58 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.vsu.cs.carsharing.converter.CustomerMapper;
-import ru.vsu.cs.carsharing.converter.UserMapper;
-import ru.vsu.cs.carsharing.dao.UserDao;
+import ru.vsu.cs.carsharing.converter.EmployeeMapper;
+import ru.vsu.cs.carsharing.dao.EmployeeDao;
 import ru.vsu.cs.carsharing.dto.AuthorizedCustomerDto;
-import ru.vsu.cs.carsharing.dto.AuthorizedUserDto;
+import ru.vsu.cs.carsharing.dto.AuthorizedEmployeeDto;
 import ru.vsu.cs.carsharing.dto.CustomerDto;
-import ru.vsu.cs.carsharing.dto.UserDto;
+import ru.vsu.cs.carsharing.dto.EmployeeDto;
 import ru.vsu.cs.carsharing.entity.Customer;
-import ru.vsu.cs.carsharing.entity.User;
+import ru.vsu.cs.carsharing.entity.Employee;
 import ru.vsu.cs.carsharing.exception.WebException;
 import ru.vsu.cs.carsharing.security.JwtTokenProvider;
 import ru.vsu.cs.carsharing.security.Keychain;
 import ru.vsu.cs.carsharing.service.external.SMSAuthService;
 import ru.vsu.cs.carsharing.service.external.SMSUtil;
 
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthorizationService {
+    public static final String EMPLOYEE = "Employee";
+    public static final String CUSTOMER = "Customer";
     private final JwtTokenProvider jwtTokenProvider;
     private final SMSAuthService smsAuthService;
     private final Keychain keychain;
-    private final UserDao userDao;
+    private final EmployeeDao employeeDao;
     private final CustomerService customerService;
 
-    public AuthorizedUserDto authorizeUser(String login, String password) {
+    public AuthorizedEmployeeDto authorizeEmployee(String login, String password) {
         try {
-            User authorizedUser = authUser(login, password);
-            UserDto dto = UserMapper.INSTANCE.toDto(authorizedUser);
-            int userId = authorizedUser.getId();
-            String token = jwtTokenProvider.createToken(String.valueOf(userId));
-            List<String> authorities = keychain.getAuthoritiesStrings(login, userId);
-            return new AuthorizedUserDto(dto, JwtTokenProvider.BEARER + token, authorities);
+            Employee authorizedEmployee = authUser(login, password);
+            EmployeeDto dto = EmployeeMapper.INSTANCE.toDto(authorizedEmployee);
+            int userId = authorizedEmployee.getId();
+            String token = jwtTokenProvider.createToken(String.format("%d %s", userId, login), EMPLOYEE);
+            Set<String> authorities = keychain.getEmployeeAuthoritiesStrings(login, userId);
+            return new AuthorizedEmployeeDto(dto, JwtTokenProvider.BEARER + token, authorities);
         } catch (Exception e) {
             log.error("Error during authorization", e);
             throw e;
         }
     }
 
-    private User authUser(String login, String password) {
-        if (!userDao.existsByLogin(login)) {
+    private Employee authUser(String login, String password) {
+        if (!employeeDao.existsByLogin(login)) {
             throw new WebException("Login doesn't exist", HttpStatus.UNAUTHORIZED);
         }
-        User user = userDao.getByLogin(login);
-        if (!Objects.equals(HashUtills.hashPassword(password, user.getSalt()), user.getPassword())) {
+        Employee employee = employeeDao.getByLogin(login);
+        if (!Objects.equals(HashUtills.hashPassword(password, employee.getSalt()), employee.getPassword())) {
             throw new WebException("Wrong password", HttpStatus.FORBIDDEN);
         }
-        return user;
+        return employee;
     }
 
     public void sendCustomerSMS(String phoneNumber) {
@@ -70,7 +72,7 @@ public class AuthorizationService {
             }
             Customer customer = customerService.getOrCreateCustomerByPhoneNumber(phoneNumber);
             CustomerDto dto = CustomerMapper.INSTANCE.toDto(customer);
-            String token = jwtTokenProvider.createToken(String.valueOf(customer.getId()));
+            String token = jwtTokenProvider.createToken(String.valueOf(customer.getId()), CUSTOMER);
             return new AuthorizedCustomerDto(dto, JwtTokenProvider.BEARER + token);
         } catch (Exception e) {
             log.error("Error during authorization", e);

@@ -12,7 +12,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "employee")
 @Data
-public class User {
+public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -37,17 +37,17 @@ public class User {
     private boolean deleted;
 
 
-    public User() {
+    public Employee() {
 
     }
 
-    public User(String login, String password, String name) {
+    public Employee(String login, String password, String name) {
         this.login = login;
         this.password = password;
         this.name = name;
     }
 
-    public User(String login, String password, String salt, String name, String roles) {
+    public Employee(String login, String password, String salt, String name, String roles) {
         this.login = login;
         this.password = password;
         this.name = name;

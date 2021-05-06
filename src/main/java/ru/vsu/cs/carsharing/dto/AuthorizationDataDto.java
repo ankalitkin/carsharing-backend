@@ -3,7 +3,7 @@ package ru.vsu.cs.carsharing.dto;
 import lombok.Data;
 
 @Data
-public class AuthorizationUserDataDto {
+public class AuthorizationDataDto {
     private String login;
     private String password;
 }
