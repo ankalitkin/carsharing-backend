@@ -31,10 +31,10 @@ public class Car {
     private double longitude;
 
     @Column(name = "is_used")
-    private boolean isUsed;
+    private boolean used;
 
     @Column(name = "is_visible")
-    private boolean isVisible;
+    private boolean visible;
 
     @Column(name = "comment")
     private String comment;
