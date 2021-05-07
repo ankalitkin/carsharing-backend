@@ -1,4 +1,4 @@
-package ru.vsu.cs.carsharing.converter;
+package ru.vsu.cs.carsharing.converter.admin;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -8,8 +8,8 @@ import ru.vsu.cs.carsharing.entity.Employee;
 import java.util.List;
 
 @Mapper
-public interface FullEmployeeMapper { //NOSONAR
-    FullEmployeeMapper INSTANCE = Mappers.getMapper(FullEmployeeMapper.class);
+public interface EmployeeAdminMapper { //NOSONAR
+    EmployeeAdminMapper INSTANCE = Mappers.getMapper(EmployeeAdminMapper.class);
 
     FullEmployeeDto toDto(Employee entity);
 

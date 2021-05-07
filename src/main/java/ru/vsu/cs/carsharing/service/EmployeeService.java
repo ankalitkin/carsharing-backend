@@ -20,26 +20,36 @@ public class EmployeeService {
     }
 
     public void updateProfile(UpdateEmployeeDto dto) {
-        String name = dto.getName();
-        String login = dto.getLogin();
-        String newPassword = dto.getNewPassword();
-        String oldPassword = dto.getOldPassword();
-
         Employee employee = employeeDao.getById(CurrentUserService.getEmployeeId());
+        employee.setName(dto.getName());
+        tryChangeLogin(employee, dto.getLogin());
+        tryChangePassword(employee, dto.getOldPassword(), dto.getNewPassword());
+        employeeDao.save(employee);
+    }
+
+    private void tryChangeLogin(Employee employee, String login) {
         if (!login.equals(employee.getLogin()) && employeeDao.existsByLogin(login)) {
             throw new WebException("Login is already used", HttpStatus.CONFLICT);
         }
         employee.setLogin(login);
-        employee.setName(name);
+    }
+
+    public void tryChangePassword(Employee employee, String oldPassword, String newPassword) {
         if (oldPassword != null && oldPassword.length() != 0 && newPassword != null && newPassword.length() != 0) {
             String oldHashedPassword = HashUtills.hashPassword(oldPassword, employee.getSalt());
             if (!employee.getPassword().equals(oldHashedPassword)) {
                 throw new WebException("Wrong password", HttpStatus.BAD_REQUEST);
             }
-            String newHashedPassword = HashUtills.hashPassword(newPassword, employee.getSalt());
-            employee.setPassword(newHashedPassword);
+            setPassword(employee, newPassword);
         }
-        employeeDao.save(employee);
+    }
+
+
+    public void setPassword(Employee employee, String newPassword) {
+        String salt = HashUtills.generateSalt(10);
+        String newHashedPassword = HashUtills.hashPassword(newPassword, salt);
+        employee.setSalt(salt);
+        employee.setPassword(newHashedPassword);
     }
 
 }

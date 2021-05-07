@@ -6,11 +6,15 @@ import ru.vsu.cs.carsharing.entity.Employee;
 import java.util.List;
 
 public interface EmployeeDao extends CrudRepository<Employee, Integer> {
+    List<Employee> findAllByOrderById();
+
     boolean existsByLogin(String login);
+
+    boolean existsByLoginAndDeleted(String login, boolean deleted);
 
     Employee getByLogin(String login);
 
     Employee getById(int id);
 
-    List<Employee> findAllByIdIn(List<Integer> ids);
+    boolean existsByDeleted(boolean deleted);
 }

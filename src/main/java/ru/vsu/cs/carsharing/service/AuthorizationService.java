@@ -49,7 +49,7 @@ public class AuthorizationService {
     }
 
     private Employee authUser(String login, String password) {
-        if (!employeeDao.existsByLogin(login)) {
+        if (!employeeDao.existsByLoginAndDeleted(login, false)) {
             throw new WebException("Login doesn't exist", HttpStatus.UNAUTHORIZED);
         }
         Employee employee = employeeDao.getByLogin(login);
