@@ -34,4 +34,8 @@ public class Customer {
     @Column(name = "banned_until")
     private Date bannedUntil;
 
+    @Override
+    public String toString() {
+        return String.format("%s, %s", name, phoneNumber);
+    }
 }

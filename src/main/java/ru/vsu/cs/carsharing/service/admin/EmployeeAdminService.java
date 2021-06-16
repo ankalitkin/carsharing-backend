@@ -34,7 +34,7 @@ public class EmployeeAdminService {
         employee.setName(dto.getName() != null ? dto.getName() : "");
         employee.setLogin(dto.getLogin());
         employee.setDeleted(dto.isDeleted());
-        employee.setRoles(dto.getRoles() != null ? dto.getName() : "");
+        employee.setRoles(dto.getRoles() != null ? dto.getRoles() : "");
         String newPassword = dto.getNewPassword();
         if (newPassword != null) {
             if (newPassword.trim().length() == 0) {

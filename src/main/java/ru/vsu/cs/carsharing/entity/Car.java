@@ -39,4 +39,8 @@ public class Car {
     @Column(name = "comment")
     private String comment;
 
+    @Override
+    public String toString() {
+        return String.format("%s, VIN: %s", model, vin);
+    }
 }

@@ -9,5 +9,4 @@ public class LogDto {
     private int customerId;
     private int carId;
     private String value;
-
 }

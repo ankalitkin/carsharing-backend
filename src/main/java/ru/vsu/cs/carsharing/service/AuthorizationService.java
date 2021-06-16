@@ -19,6 +19,7 @@ import ru.vsu.cs.carsharing.security.Keychain;
 import ru.vsu.cs.carsharing.service.external.SMSAuthService;
 import ru.vsu.cs.carsharing.service.external.SMSUtil;
 
+import java.util.Date;
 import java.util.Objects;
 import java.util.Set;
 
@@ -71,6 +72,9 @@ public class AuthorizationService {
                 throw new WebException("Wrong code", HttpStatus.FORBIDDEN);
             }
             Customer customer = customerService.getOrCreateCustomerByPhoneNumber(phoneNumber);
+            if (customer.getBannedUntil() != null && customer.getBannedUntil().after(new Date())) {
+                throw new WebException("User is banned", HttpStatus.FORBIDDEN);
+            }
             CustomerDto dto = CustomerMapper.INSTANCE.toDto(customer);
             String token = jwtTokenProvider.createToken(String.valueOf(customer.getId()), CUSTOMER);
             return new AuthorizedCustomerDto(dto, JwtTokenProvider.BEARER + token);

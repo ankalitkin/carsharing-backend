@@ -23,8 +23,8 @@ public class InitializingService {
                 employee = new Employee();
             }
             employee.setLogin(DEFAULT_ADMIN_LOGIN);
-            employee.setName("DEFAULT ADMIN");
-            employee.setRoles("DEFAULT");
+            employee.setName(DEFAULT_ADMIN_LOGIN);
+            employee.setRoles("DEFAULT ADMIN");
             employee.setDeleted(false);
             employeeService.setPassword(employee, DEFAULT_ADMIN_PASSWORD);
             employeeDao.save(employee);
