@@ -5,4 +5,5 @@
    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
     <include file="db/changelog/patches/0001_carsharingCreation.sql"/>
+    <include file="db/changelog/patches/0002_add-column-timestamp.sql"/>
 </databaseChangeLog>

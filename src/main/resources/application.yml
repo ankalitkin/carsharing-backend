@@ -25,6 +25,10 @@ spring:
     serialization:
       indent_output: true
     default-property-inclusion: NON_NULL
+  servlet:
+    multipart:
+      max-file-size: 128MB
+      max-request-size: 128MB
 #logging:
 #  level:
 #    org:

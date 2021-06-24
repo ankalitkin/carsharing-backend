@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class Keychain {
+    public static final String ROLE_EMPLOYEE = "Employee";
     public static final String ROLE_ADMIN = "Admin";
     static final String JWT_KEY = System.getenv("JWT_KEY");
     static final Set<String> admins = getEnvAdmins();
@@ -52,6 +53,7 @@ public class Keychain {
     public Set<String> getEmployeeAuthoritiesStrings(String login, int userId) {
         List<String> roles = Arrays.asList(employeeDao.getById(userId).getRoles().split("[ ,;]"));
         Set<String> authorities = new LinkedHashSet<>(roles);
+        authorities.add(ROLE_EMPLOYEE);
         if (admins.contains(login)) {
             authorities.add(ROLE_ADMIN);
         }

@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "log")
@@ -30,4 +31,6 @@ public class Log {
     @Column(name = "value")
     private String value;
 
+    @Column(name = "timestamp")
+    private LocalDateTime timestamp;
 }

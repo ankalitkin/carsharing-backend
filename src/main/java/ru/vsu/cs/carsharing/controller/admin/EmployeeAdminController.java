@@ -23,7 +23,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("admin/employee")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('ADMIN')")
+@PreAuthorize("hasAuthority('Admin')")
 public class EmployeeAdminController {
     private final EmployeeAdminService service;
 

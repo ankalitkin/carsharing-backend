@@ -1,0 +1,46 @@
+version: "3"
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:12
+    volumes:
+      - /home/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=carsharing
+    networks:
+      - backend
+
+  backend:
+    container_name: backend
+    image: ankalitkin/carsharing:backend
+    depends_on:
+      - postgres
+    volumes:
+      - /uploads:/uploads
+    networks:
+      - backend
+      - frontend
+    environment:
+      - DB_URL=jdbc:postgresql://postgres:5432/carsharing
+      - DB_LOGIN=postgres
+      - DB_PASSWORD=postgres
+    env_file:
+      - 'jwtkey.env' # Contains JWT_KEY
+      - 'settings.env'# Contains ADMINS list
+
+  frontend:
+    container_name: frontend
+    image: ankalitkin/carsharing:frontend
+    ports:
+      - "8085:80"
+    networks:
+      - frontend
+    depends_on:
+      - backend
+
+networks:
+  backend:
+  frontend:
+
